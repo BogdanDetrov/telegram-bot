@@ -3,7 +3,8 @@ import logging
 from random import choice
 
 from emoji import emojize
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
+from telegram import ReplyKeyboardMarkup
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 
 import settings
 
@@ -15,7 +16,8 @@ def greet_user(bot, update, user_data):
     emo = get_user_emo(user_data)
     user_data['emo'] = emo
     text = 'Привет {}'.format(emo)
-    update.message.reply_text(text)
+    my_keyboard = ReplyKeyboardMarkup([['Прислать ежика', 'Сменить аватарку']])
+    update.message.reply_text(text, reply_markup=my_keyboard)
 
 def talk_to_me(bot, update, user_data):
     emo = get_user_emo(user_data)
@@ -29,6 +31,12 @@ def send_hedgehog_picture(bot, update, user_data):
     hedgehog_list = glob('images/hedgehog*.jp*g')
     hedgehog_pic = choice(hedgehog_list)
     bot.send_photo(chat_id=update.message.chat_id, photo=open(hedgehog_pic, 'rb'))
+
+def change_avatar(bot, update, user_data):
+    if 'emo' in user_data:
+        del user_data['emo']
+    emo = get_user_emo(user_data)
+    update.message.reply_text('Готово: {}'.format(emo))
 
 def get_user_emo(user_data):
     if 'emo' in user_data:
@@ -46,7 +54,8 @@ def main():
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
     dp.add_handler(CommandHandler("hedgehog", send_hedgehog_picture, pass_user_data=True))
-
+    dp.add_handler(RegexHandler('^(Прислать ежика)$', send_hedgehog_picture, pass_user_data=True))
+    dp.add_handler(RegexHandler('^(Сменить аватарку)$', change_avatar, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
     
 
