@@ -2,3 +2,4 @@
 env/
 settings.py 
 hello.py
+*__pycache__
