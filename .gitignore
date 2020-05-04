@@ -3,3 +3,4 @@ env/
 settings.py 
 hello.py
 *__pycache__
+images/
