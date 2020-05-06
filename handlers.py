@@ -20,10 +20,10 @@ def talk_to_me(bot, update, user_data):
                  update.message.chat.id, update.message.text)
     update.message.reply_text(user_text, reply_markup=get_keyboard())
 
-def send_hedgehog_picture(bot, update, user_data):
-    hedgehog_list = glob('images/hedgehog*.jp*g')
-    hedgehog_pic = choice(hedgehog_list)
-    bot.send_photo(chat_id=update.message.chat_id, photo=open(hedgehog_pic, 'rb'), reply_markup=get_keyboard())
+def send_cat_picture(bot, update, user_data):
+    cat_list = glob('images/cat*.jp*g')
+    cat_pic = choice(cat_list)
+    bot.send_photo(chat_id=update.message.chat_id, photo=open(cat_pic, 'rb'), reply_markup=get_keyboard())
 
 def change_avatar(bot, update, user_data):
     if 'emo' in user_data:

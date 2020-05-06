@@ -17,8 +17,8 @@ def main():
 
     dp = mybot.dispatcher
     dp.add_handler(CommandHandler('start', greet_user, pass_user_data=True))
-    dp.add_handler(CommandHandler("hedgehog", send_hedgehog_picture, pass_user_data=True))
-    dp.add_handler(RegexHandler('^(Прислать ежика)$', send_hedgehog_picture, pass_user_data=True))
+    dp.add_handler(CommandHandler("cat", send_cat_picture, pass_user_data=True))
+    dp.add_handler(RegexHandler('^(Прислать котика)$', send_cat_picture, pass_user_data=True))
     dp.add_handler(RegexHandler('^(Сменить аватарку)$', change_avatar, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.contact, get_contact, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.location, get_location, pass_user_data=True))
