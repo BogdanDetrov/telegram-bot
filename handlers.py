@@ -3,6 +3,7 @@ from random import choice
 import logging
 import os
 
+from telegram import ReplyKeyboardRemove
 
 from utils import get_keyboard, get_user_emo, is_cat
 
@@ -58,3 +59,7 @@ def check_user_photo(bot, update, user_data):
         update.message.reply_text("Котик не обнаружен.")
 
 
+def anketa_start(bot, update, user_data):
+    update.message.reply_text('Как вас зовут? Напишите имя и фамилию',
+    reply_markup=ReplyKeyboardRemove())
+    return 'name'

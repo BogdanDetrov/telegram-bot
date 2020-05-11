@@ -1,6 +1,6 @@
 import logging
 
-from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler
 
 from handlers import *
 import settings
@@ -24,6 +24,14 @@ def main():
     dp.add_handler(MessageHandler(Filters.location, get_location, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.photo, check_user_photo, pass_user_data=True))
 
+    anketa = ConversationHandler(
+        entry_points = [RegexHandler('^(Заполнить анкету)$', anketa_start, 
+                       pass_user_data=True)],
+        states = {},
+        fallbacks = []
+    )
+
+    dp.add_handler(anketa)
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))
     
 
