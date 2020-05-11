@@ -3,7 +3,8 @@ from random import choice
 import logging
 import os
 
-from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup
+from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, ParseMode
+from telegram.ext import ConversationHandler
 
 from utils import get_keyboard, get_user_emo, is_cat
 
@@ -79,3 +80,24 @@ def anketa_get_name(bot, update, user_data):
             resize_keyboard = True
         )
         return 'rating'
+
+def anketa_rating(bot, update, user_data):
+    user_data['anketa_rating'] = update.message.text
+    update.message.reply_text('''Пожалуйста напишите отзыв в свободной форме или /cancel чтобы пропустить данный этап''')
+    return "comment"
+
+def anketa_comment(bot, update, user_data):
+    user_data['anketa_comment'] = update.message.text
+    text = """
+<b>Ваше имя и фамлия: </b>{anketa_name}
+<b>Ваша оценка: </b>{anketa_rating}
+<b>Ваш комментарий: </b>{anketa_comment}""".format(**user_data)
+    update.message.reply_text(text, reply_markup=get_keyboard(), parse_mode=ParseMode.HTML)
+    return ConversationHandler.END
+
+def anketa_skip_comment(bot, update, user_data):
+    text = """
+<b>Ваше имя и фамилия: </b>{anketa_name}
+<b>Ваша оценка: </b>{anketa_rating}""".format(**user_data)
+    update.message.reply_text(text, reply_markup=get_keyboard(), parse_mode=ParseMode.HTML)
+    return ConversationHandler.END
