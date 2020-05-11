@@ -27,7 +27,9 @@ def main():
     anketa = ConversationHandler(
         entry_points = [RegexHandler('^(Заполнить анкету)$', anketa_start, 
                        pass_user_data=True)],
-        states = {},
+        states = {
+            'name': [MessageHandler(Filters.text, anketa_get_name, pass_user_data = True)]
+        },
         fallbacks = []
     )
 

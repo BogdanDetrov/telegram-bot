@@ -3,7 +3,7 @@ from random import choice
 import logging
 import os
 
-from telegram import ReplyKeyboardRemove
+from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup
 
 from utils import get_keyboard, get_user_emo, is_cat
 
@@ -63,3 +63,19 @@ def anketa_start(bot, update, user_data):
     update.message.reply_text('Как вас зовут? Напишите имя и фамилию',
     reply_markup=ReplyKeyboardRemove())
     return 'name'
+
+def anketa_get_name(bot, update, user_data):
+    user_name = update.message.text
+    if len(user_name.split(" ")) != 2:
+        update.message.reply_text('Пожалуйста введите имя и фамилию')
+        return 'name'
+    else:
+        user_data['anketa_name'] = user_name
+        reply_keyboard = [['1','2','3','4','5']]
+
+        update.message.reply_text(
+            'Оцените нашего бота от 1 до 5',
+            reply_markup = ReplyKeyboardMarkup(reply_keyboard, one_time_keyboard=True),
+            resize_keyboard = True
+        )
+        return 'rating'
