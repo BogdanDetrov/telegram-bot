@@ -1,6 +1,7 @@
 import logging
 
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, ConversationHandler, RegexHandler
+from telegram.ext import messagequeue as mq
 
 from handlers import *
 import settings
@@ -22,6 +23,8 @@ def my_test(bot, job):
 
 def main():
     mybot = Updater(settings.API_KEY, request_kwargs=settings.PROXY)
+    mybot.bot._msg_queue = mq.MessageQueue()
+    mybot.bot._is_messages_queued_default = True
     
     logging.info('Bot starts')
 
@@ -54,6 +57,7 @@ def main():
     dp.add_handler(MessageHandler(Filters.location, get_location, pass_user_data=True))
     dp.add_handler(CommandHandler('subscribe', subscribe))
     dp.add_handler(CommandHandler('unsubscribe', unsubscribe))
+    dp.add_handler(CommandHandler('alarm', set_alarm, pass_args=True, pass_job_queue=True))
 
     dp.add_handler(MessageHandler(Filters.photo, check_user_photo, pass_user_data=True))
     dp.add_handler(MessageHandler(Filters.text, talk_to_me, pass_user_data=True))

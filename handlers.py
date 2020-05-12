@@ -5,6 +5,8 @@ import os
 
 from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, ParseMode
 from telegram.ext import ConversationHandler
+from telegram.ext import messagequeue as mq
+
 
 from utils import get_keyboard, get_user_emo, is_cat
 from bot import subscribers
@@ -113,9 +115,12 @@ def subscribe(bot, update):
     update.message.reply_text('Вы подписались')
     print(subscribers)
 
+
+@mq.queuedmessage
 def send_updates(bot, job):
     for chat_id in subscribers:
         bot.sendMessage(chat_id=chat_id, text="BUZZ")
+
 
 def unsubscribe(bot, update):
     if update.message.chat_id in subscribers:
@@ -123,3 +128,17 @@ def unsubscribe(bot, update):
         update.message.reply_text('Вы отписались')
     else:
         update.message.reply_text('Вы не подписаны :) Можете набрать /subscribe чтобы подписаться')
+
+
+def set_alarm(bot, update, args, job_queue):
+    try:
+        seconds = abs(int(args[0]))
+        job_queue.run_once(alarm, seconds, context=update.message.chat_id)
+        if seconds:
+            update.message.reply_text(f'Будильник сработает через {seconds} секунд')
+    except (IndexError, ValueError):
+        update.message.reply_text("Введите число секунд после команды /alarm")
+
+@mq.queuedmessage
+def alarm(bot, job):
+    bot.sendMessage(chat_id=job.context, text='БУДИЛЬНИК!!!')
