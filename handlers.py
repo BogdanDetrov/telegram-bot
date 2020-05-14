@@ -3,13 +3,12 @@ from random import choice
 import logging
 import os
 
-from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, ParseMode
+from telegram import ReplyKeyboardRemove, ReplyKeyboardMarkup, ParseMode, error
 from telegram.ext import ConversationHandler
 from telegram.ext import messagequeue as mq
 
-
 from utils import get_keyboard, is_cat
-from db import db, get_or_create_user, get_user_emo
+from db import db, get_or_create_user, get_user_emo, toogle_subscription, get_subscribers
 from bot import subscribers
 
 
@@ -24,7 +23,7 @@ def talk_to_me(bot, update, user_data):
     user = get_or_create_user(db, update.effective_user, update.message)
     emo = get_user_emo(db, user)
     user_text = "Привет {} {}! Ты написал: {}".format(user['first_name'], 
-                user_data['emo'], update.message.text)
+                emo, update.message.text)
     logging.info("User: %s, Chat id: %s, Message: %s",user['username'],
                  update.message.chat.id, update.message.text)
     update.message.reply_text(user_text, reply_markup=get_keyboard())
@@ -125,24 +124,29 @@ def dontknow(bot, update, user_data):
 
 def subscribe(bot, update):
     user = get_or_create_user(db, update.effective_user, update.message)
-    subscribers.add(update.message.chat_id)
-    update.message.reply_text('Вы подписались')
-    print(subscribers)
-
+    if not user.get('subscribed'):
+        toogle_subscription(db, user)
+        update.message.reply_text('Вы подписались')
+    elif user.get('subscribed'):
+        update.message.reply_text('Вы уже подписаны :)')
 
 @mq.queuedmessage
 def send_updates(bot, job):
-    for chat_id in subscribers:
-        bot.sendMessage(chat_id=chat_id, text="BUZZ")
+    for user in get_subscribers(db):
+        try:
+            bot.sendMessage(chat_id=user['chat_id'], text="BUZZ")
+        except error.BadRequest:
+            print('Chat {} not found'.format(user['chat_id']))
+            
 
 
 def unsubscribe(bot, update):
     user = get_or_create_user(db, update.effective_user, update.message)
-    if update.message.chat_id in subscribers:
-        subscribers.remove(update.message.chat_id)
+    if user.get('subscribed'):
+        toogle_subscription(db, user)
         update.message.reply_text('Вы отписались')
     else:
-        update.message.reply_text('Вы не подписаны :) Можете набрать /subscribe чтобы подписаться')
+        update.message.reply_text('Вы не подписаны :) Можете набрать /sub чтобы подписаться')
 
 
 def set_alarm(bot, update, args, job_queue):
